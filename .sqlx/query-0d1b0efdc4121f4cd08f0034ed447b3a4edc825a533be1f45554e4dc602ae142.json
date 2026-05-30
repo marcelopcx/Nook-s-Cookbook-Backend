@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT numero_paso, instruccion\n        FROM paso_receta\n        WHERE id_receta = $1\n        ORDER BY numero_paso ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "numero_paso",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "instruccion",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "0d1b0efdc4121f4cd08f0034ed447b3a4edc825a533be1f45554e4dc602ae142"
+}

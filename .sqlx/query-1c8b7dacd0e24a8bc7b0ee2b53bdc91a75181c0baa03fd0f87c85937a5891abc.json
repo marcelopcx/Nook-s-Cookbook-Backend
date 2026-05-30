@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            i.id,\n            i.nombre,\n            i.id_tipo_ingrediente,\n            ti.nombre AS tipo_nombre\n        FROM ingrediente i\n        LEFT JOIN tipo_ingrediente ti ON ti.id = i.id_tipo_ingrediente\n        ORDER BY LOWER(i.nombre)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "id_tipo_ingrediente",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "tipo_nombre",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "1c8b7dacd0e24a8bc7b0ee2b53bdc91a75181c0baa03fd0f87c85937a5891abc"
+}

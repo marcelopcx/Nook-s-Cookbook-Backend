@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            id,\n            nombre,\n            descripcion,\n            raciones,\n            tiempo,\n            promedio_puntuacion::float8 AS \"promedio_puntuacion?: f64\",\n            dificultad,\n            imagen,\n            id_usuario_creador\n        FROM receta\n        ORDER BY LOWER(nombre)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "descripcion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "raciones",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "tiempo",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "promedio_puntuacion?: f64",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 6,
+        "name": "dificultad",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "imagen",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "id_usuario_creador",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "7e97c04ecc9e5b2106914d75e0e0716a9035ca6d88cbf85eef003e06ebe7e5a0"
+}

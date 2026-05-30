@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            ur.id_utensilio,\n            u.nombre,\n            ur.cantidad,\n            tu.nombre AS tipo_nombre\n        FROM utensilio_receta ur\n        INNER JOIN utensilio u ON u.id = ur.id_utensilio\n        LEFT JOIN tipo_utensilio tu ON tu.id = u.id_tipo_utensilio\n        WHERE ur.id_receta = $1\n        ORDER BY LOWER(u.nombre)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id_utensilio",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "cantidad",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "tipo_nombre",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "83e23c41f2259fb1afccdaa4cf0ebf9ed3b756737ded4d5cfe6bdf63f4276ee7"
+}

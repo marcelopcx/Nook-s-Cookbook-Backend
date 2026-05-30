@@ -7,8 +7,7 @@
 .env.*
 !.env.example
 
-# SQLx offline cache (local; generar con: cargo sqlx prepare)
-.sqlx/
+# SQLx offline cache: se versiona en git (regenerar con: make sqlx-prepare)
 
 # Colección Bruno (local)
 api/
