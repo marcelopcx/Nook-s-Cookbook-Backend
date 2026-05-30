@@ -1,6 +1,13 @@
 use actix_web::{web, App, HttpServer};
 use backend::config::AppConfig;
 use backend::{db, routes};
+use std::net::UdpSocket;
+
+fn local_ip() -> Option<String> {
+    let socket = UdpSocket::bind("0.0.0.0:0").ok()?;
+    socket.connect("8.8.8.8:80").ok()?;
+    Some(socket.local_addr().ok()?.ip().to_string())
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -12,13 +19,21 @@ async fn main() -> std::io::Result<()> {
     let host = config.host.clone();
     let port = config.port;
 
-    HttpServer::new(move || {
+    let printed_host = if host == "0.0.0.0" {
+        local_ip().unwrap_or_else(|| host.clone())
+    } else {
+        host.clone()
+    };
+
+    let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(config.clone()))
             .configure(routes::configure)
     })
-    .bind((host.as_str(), port))?
-        .run()
-        .await
+    .bind((host.as_str(), port))?;
+
+    println!("Servidor listo en http://{}:{}", printed_host, port);
+
+    server.run().await
 }

@@ -7,6 +7,14 @@ pub struct AppConfig {
     pub jwt_expiration_hours: i64,
     pub host: String,
     pub port: u16,
+    pub cloudinary: CloudinaryConfig,
+}
+
+#[derive(Clone)]
+pub struct CloudinaryConfig {
+    pub cloud_name: String,
+    pub upload_preset: String,
+    pub folder: String,
 }
 
 impl AppConfig {
@@ -22,12 +30,19 @@ impl AppConfig {
                 .expect("falta JWT_EXPIRATION_HOURS en .env")
                 .parse::<i64>()
                 .expect("JWT_EXPIRATION_HOURS debe ser un número (ej: 24)"),
-            host: env::var("HOST")
-                .expect("falta HOST en .env"),
+            host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT")
                 .expect("falta PORT en .env")
                 .parse::<u16>()
                 .expect("PORT debe ser un número (ej: 8080)"),
+            cloudinary: CloudinaryConfig {
+                cloud_name: env::var("CLOUDINARY_CLOUD_NAME")
+                    .unwrap_or_else(|_| "mpc-uru".to_string()),
+                upload_preset: env::var("CLOUDINARY_UPLOAD_PRESET")
+                    .unwrap_or_else(|_| "n3n6sbhv".to_string()),
+                folder: env::var("CLOUDINARY_FOLDER")
+                    .unwrap_or_else(|_| "recetas".to_string()),
+            },
         }
     }
 }

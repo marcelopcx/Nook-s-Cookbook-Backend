@@ -50,7 +50,7 @@ Asegúrate de tener instalado lo siguiente en tu sistema:
     DATABASE_URL=postgres://nooks:secret123@127.0.0.1:5432/nooks_cookbook?options=-csearch_path%3Dnooks_cookbook
     JWT_SECRET=un_secreto_largo_minimo_32_caracteres_cambiar_en_produccion
     JWT_EXPIRATION_HOURS=24
-    HOST=127.0.0.1
+    HOST=0.0.0.0
     PORT=8080
     ```
     *Nota: No subas `.env` a git. Usá `.env.example` como plantilla.*
@@ -59,11 +59,11 @@ Asegúrate de tener instalado lo siguiente en tu sistema:
     ```bash
     cargo run
     ```
-    El servidor quedará disponible en **`http://127.0.0.1:8080`**.
+    El servidor quedará disponible en **`http://TU_IP_LOCAL:8080`** y también aceptará conexiones desde otros dispositivos de la red porque escucha en **`0.0.0.0`**.
 
 6.  **Comprueba que todo funciona:**
     ```bash
-    curl http://127.0.0.1:8080/health
+    curl http://TU_IP_LOCAL:8080/health
     ```
     Deberías recibir un mensaje temático de Animal Crossing confirmando que los servicios están en línea.
 
@@ -103,7 +103,7 @@ El backend está organizado en capas para separar rutas, lógica de negocio y ac
 
 Repositorio del cliente: **[Nook-s-Cookbook-Frontend](https://github.com/marcelopcx/Nook-s-Cookbook-Frontend)**
 
-Clona y configura el frontend siguiendo su README. Luego, en el `.env` del proyecto Expo, apunta la URL de la API a tu máquina usando la **IP local** (no `localhost`) para que el dispositivo móvil pueda alcanzar este backend:
+Clona y configura el frontend siguiendo su README. Luego, en el `.env` del proyecto Expo, apunta la URL de la API a tu máquina usando la **IP local** (no `localhost`) para que el dispositivo móvil pueda alcanzar este backend. Como el backend escucha en `0.0.0.0`, cualquier dispositivo en la misma red podrá conectarse usando esa IP:
 
 ```env
 EXPO_PUBLIC_API_URL=http://TU_IP_LOCAL:8080

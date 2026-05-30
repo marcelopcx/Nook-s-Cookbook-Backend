@@ -2,6 +2,9 @@ use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 
 use crate::services::auth::AuthError;
+use crate::services::cloudinary::CloudinaryError;
+use crate::services::ingrediente::IngredienteError;
+use crate::services::receta::RecetaError;
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -9,6 +12,7 @@ pub enum ApiError {
     NoAutorizado,
     NoEncontrado,
     UsuarioYaExiste,
+    SolicitudInvalida(String),
     ErrorDelServidor(String),
 }
 
@@ -25,6 +29,7 @@ impl ApiError {
             ApiError::NoAutorizado => "no autorizado".into(),
             ApiError::NoEncontrado => "recurso no encontrado".into(),
             ApiError::UsuarioYaExiste => "el usuario ya existe".into(),
+            ApiError::SolicitudInvalida(detalle) => detalle.clone(),
             ApiError::ErrorDelServidor(detalle) => detalle.clone(),
         }
     }
@@ -35,6 +40,7 @@ impl ApiError {
             ApiError::NoAutorizado => StatusCode::UNAUTHORIZED,
             ApiError::NoEncontrado => StatusCode::NOT_FOUND,
             ApiError::UsuarioYaExiste => StatusCode::CONFLICT, // 409
+            ApiError::SolicitudInvalida(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::ErrorDelServidor(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
         }
     }
@@ -51,6 +57,30 @@ impl From<AuthError> for ApiError {
             AuthError::PasswordHash(e) => ApiError::ErrorDelServidor(e.to_string()),
             AuthError::Token(e) => ApiError::ErrorDelServidor(e.to_string()),
         }
+    }
+}
+
+impl From<IngredienteError> for ApiError {
+    fn from(err: IngredienteError) -> Self {
+        match err {
+            IngredienteError::Database(e) => ApiError::ErrorDelServidor(e.to_string()),
+        }
+    }
+}
+
+impl From<RecetaError> for ApiError {
+    fn from(err: RecetaError) -> Self {
+        match err {
+            RecetaError::InvalidRequest(msg) => ApiError::SolicitudInvalida(msg),
+            RecetaError::NotFound => ApiError::NoEncontrado,
+            RecetaError::Database(e) => ApiError::ErrorDelServidor(e.to_string()),
+        }
+    }
+}
+
+impl From<CloudinaryError> for ApiError {
+    fn from(err: CloudinaryError) -> Self {
+        ApiError::ErrorDelServidor(err.to_string())
     }
 }
 
