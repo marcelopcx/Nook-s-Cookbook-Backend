@@ -22,3 +22,4 @@ api/
 # SO
 .DS_Store
 Thumbs.db
+__MACOSX/
