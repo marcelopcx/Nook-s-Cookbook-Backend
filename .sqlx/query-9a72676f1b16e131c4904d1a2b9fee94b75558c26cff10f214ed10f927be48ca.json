@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            g.id,\n            g.nombre,\n            g.descripcion,\n            g.publico,\n            g.fecha_creacion,\n            g.id_usuario_creador,\n            u.username AS creador_username,\n            (SELECT COUNT(*) FROM seguidor_grupo sg WHERE sg.id_grupo = g.id) AS \"num_seguidores!\",\n            (SELECT COUNT(*) FROM receta_grupo rg WHERE rg.id_grupo = g.id) AS \"num_recetas!\"\n        FROM grupo g\n        INNER JOIN usuario u ON u.id = g.id_usuario_creador\n        WHERE g.id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "descripcion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "publico",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "fecha_creacion",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "id_usuario_creador",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "creador_username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "num_seguidores!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "num_recetas!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "9a72676f1b16e131c4904d1a2b9fee94b75558c26cff10f214ed10f927be48ca"
+}

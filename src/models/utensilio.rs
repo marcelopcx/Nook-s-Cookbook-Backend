@@ -1,15 +1,15 @@
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub struct IngredienteResponse {
+pub struct UtensilioResponse {
     pub id: i32,
     pub nombre: String,
-    pub id_tipo_ingrediente: Option<i32>,
+    pub id_tipo_utensilio: Option<i32>,
     pub tipo_nombre: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct TipoIngredienteResponse {
+pub struct TipoUtensilioResponse {
     pub id: i32,
     pub nombre: String,
 }

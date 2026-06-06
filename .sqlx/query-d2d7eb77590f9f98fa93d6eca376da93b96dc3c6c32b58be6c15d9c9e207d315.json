@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            u.id,\n            u.username,\n            sg.fecha_seguido\n        FROM seguidor_grupo sg\n        INNER JOIN usuario u ON u.id = sg.id_usuario\n        WHERE sg.id_grupo = $1\n        ORDER BY sg.fecha_seguido DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "fecha_seguido",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d2d7eb77590f9f98fa93d6eca376da93b96dc3c6c32b58be6c15d9c9e207d315"
+}

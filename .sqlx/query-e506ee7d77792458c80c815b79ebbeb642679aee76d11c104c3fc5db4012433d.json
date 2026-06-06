@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM paso_receta WHERE id_receta = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e506ee7d77792458c80c815b79ebbeb642679aee76d11c104c3fc5db4012433d"
+}

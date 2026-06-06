@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO grupo (nombre, descripcion, publico, id_usuario_creador)\n        VALUES ($1, $2, COALESCE($3, TRUE), $4)\n        RETURNING id, nombre, descripcion, publico, fecha_creacion, id_usuario_creador\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "descripcion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "publico",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "fecha_creacion",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "id_usuario_creador",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e4b30767e333738f7a3beb5a608e251a449dbd9edccc81a7b03941be8b51eacc"
+}

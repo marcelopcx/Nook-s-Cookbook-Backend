@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM favoritos_usuario\n        WHERE id_usuario = $1 AND id_receta = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "09850c53256bfc351def0d25150c3efb6e69271eeac4a1ac642d718a7845abf4"
+}

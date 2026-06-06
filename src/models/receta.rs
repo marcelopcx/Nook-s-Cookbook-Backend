@@ -32,6 +32,19 @@ pub struct UtensilioRecetaInput {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UpdateRecetaRequest {
+    pub nombre: String,
+    pub descripcion: Option<String>,
+    pub raciones: Option<i32>,
+    pub tiempo: Option<String>,
+    pub dificultad: Option<String>,
+    pub imagen: Option<String>,
+    pub pasos: Vec<PasoInput>,
+    pub ingredientes: Vec<IngredienteRecetaInput>,
+    pub utensilios: Vec<UtensilioRecetaInput>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CreateRecetaRequest {
     pub nombre: String,
     pub descripcion: Option<String>,

@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 
-use crate::models::ingrediente::IngredienteResponse;
+use crate::models::ingrediente::{IngredienteResponse, TipoIngredienteResponse};
 
 #[derive(Debug, thiserror::Error)]
 pub enum IngredienteError {
@@ -26,4 +26,19 @@ pub async fn listar(pool: &PgPool) -> Result<Vec<IngredienteResponse>, Ingredien
     .await?;
 
     Ok(ingredientes)
+}
+
+pub async fn listar_tipos(pool: &PgPool) -> Result<Vec<TipoIngredienteResponse>, IngredienteError> {
+    let tipos = sqlx::query_as!(
+        TipoIngredienteResponse,
+        r#"
+        SELECT id, nombre
+        FROM tipo_ingrediente
+        ORDER BY LOWER(nombre)
+        "#
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(tipos)
 }

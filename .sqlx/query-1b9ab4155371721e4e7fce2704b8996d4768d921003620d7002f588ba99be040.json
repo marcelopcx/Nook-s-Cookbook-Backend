@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            u.id,\n            u.username,\n            u.public,\n            p.nombre,\n            p.apellido\n        FROM usuario u\n        INNER JOIN persona p ON p.id = u.id_persona\n        WHERE u.id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "public",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "apellido",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "1b9ab4155371721e4e7fce2704b8996d4768d921003620d7002f588ba99be040"
+}

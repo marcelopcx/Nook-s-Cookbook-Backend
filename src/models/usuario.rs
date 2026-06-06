@@ -64,6 +64,14 @@ pub struct PerfilResponse {
     pub telefono: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct PerfilPublicoResponse {
+    pub id: i32,
+    pub username: String,
+    pub nombre: String,
+    pub apellido: Option<String>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct UpdateMeRequest {
     pub username: Option<String>,

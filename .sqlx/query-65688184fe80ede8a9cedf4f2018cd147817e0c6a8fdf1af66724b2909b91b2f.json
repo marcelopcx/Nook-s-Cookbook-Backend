@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO favoritos_usuario (id_usuario, id_receta)\n        VALUES ($1, $2)\n        ON CONFLICT (id_usuario, id_receta) DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "65688184fe80ede8a9cedf4f2018cd147817e0c6a8fdf1af66724b2909b91b2f"
+}

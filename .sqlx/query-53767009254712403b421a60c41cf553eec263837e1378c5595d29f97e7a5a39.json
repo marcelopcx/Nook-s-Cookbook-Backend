@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            ul.id_logro,\n            l.nombre,\n            l.descripcion,\n            ul.fecha_obtenido\n        FROM usuario_logro ul\n        INNER JOIN logro l ON l.id = ul.id_logro\n        WHERE ul.id_usuario = $1\n        ORDER BY ul.fecha_obtenido DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id_logro",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "descripcion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "fecha_obtenido",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "53767009254712403b421a60c41cf553eec263837e1378c5595d29f97e7a5a39"
+}

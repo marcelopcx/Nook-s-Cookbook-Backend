@@ -1,4 +1,4 @@
-use actix_web::{get, patch, post, web, HttpResponse};
+use actix_web::{delete, get, patch, post, web, HttpResponse};
 use sqlx::PgPool;
 
 use crate::auth::AuthenticatedUser;
@@ -53,5 +53,32 @@ pub async fn patch_me(
     body: web::Json<UpdateMeRequest>,
 ) -> Result<HttpResponse, ApiError> {
     let perfil = auth::update_profile(pool.get_ref(), user.user_id, &body).await?;
+    Ok(HttpResponse::Ok().json(perfil))
+}
+
+#[delete("/auth/me")]
+pub async fn delete_me(
+    pool: web::Data<PgPool>,
+    user: AuthenticatedUser,
+) -> Result<HttpResponse, ApiError> {
+    auth::delete_account(pool.get_ref(), user.user_id).await?;
+    Ok(HttpResponse::NoContent().finish())
+}
+
+#[get("/auth/me/recetas")]
+pub async fn get_me_recetas(
+    pool: web::Data<PgPool>,
+    user: AuthenticatedUser,
+) -> Result<HttpResponse, ApiError> {
+    let recetas = crate::services::receta::listar_por_usuario(pool.get_ref(), user.user_id).await?;
+    Ok(HttpResponse::Ok().json(recetas))
+}
+
+#[get("/usuarios/{id}")]
+pub async fn get_usuario_publico(
+    pool: web::Data<PgPool>,
+    path: web::Path<i32>,
+) -> Result<HttpResponse, ApiError> {
+    let perfil = auth::get_public_profile(pool.get_ref(), path.into_inner()).await?;
     Ok(HttpResponse::Ok().json(perfil))
 }

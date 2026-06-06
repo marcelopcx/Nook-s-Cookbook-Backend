@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE receta\n        SET\n            nombre = $1,\n            descripcion = $2,\n            raciones = $3,\n            tiempo = $4,\n            dificultad = $5,\n            imagen = $6\n        WHERE id = $7\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Int4",
+        "Varchar",
+        "Varchar",
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "430b4ddd45ca097790fb11e90203f95cd5b7b4f23052b8b17dbf56960366b06a"
+}

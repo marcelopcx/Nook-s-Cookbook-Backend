@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO seguidor_grupo (id_usuario, id_grupo)\n        VALUES ($1, $2)\n        ON CONFLICT (id_usuario, id_grupo) DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "41277211ed007de327c065aa6cfdb35c6ca2bb061ff9aabcbd9f16d70763dc93"
+}

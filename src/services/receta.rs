@@ -2,13 +2,17 @@ use sqlx::PgPool;
 
 use crate::models::receta::{
     CreateRecetaRequest, IngredienteRecetaResponse, PasoResponse, RecetaDetalleResponse,
-    RecetaListItem, RecetaResponse, UtensilioRecetaResponse,
+    RecetaListItem, RecetaResponse, UpdateRecetaRequest, UtensilioRecetaResponse,
 };
+use crate::services::logro;
 
 #[derive(Debug, thiserror::Error)]
 pub enum RecetaError {
     #[error("solicitud inválida: {0}")]
     InvalidRequest(String),
+
+    #[error("no autorizado")]
+    Forbidden,
 
     #[error("recurso no encontrado")]
     NotFound,
@@ -34,6 +38,35 @@ pub async fn listar(pool: &PgPool) -> Result<Vec<RecetaListItem>, RecetaError> {
         FROM receta
         ORDER BY LOWER(nombre)
         "#
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(recetas)
+}
+
+pub async fn listar_por_usuario(
+    pool: &PgPool,
+    user_id: i32,
+) -> Result<Vec<RecetaListItem>, RecetaError> {
+    let recetas = sqlx::query_as!(
+        RecetaListItem,
+        r#"
+        SELECT
+            id,
+            nombre,
+            descripcion,
+            raciones,
+            tiempo,
+            promedio_puntuacion::float8 AS "promedio_puntuacion?: f64",
+            dificultad,
+            imagen,
+            id_usuario_creador
+        FROM receta
+        WHERE id_usuario_creador = $1
+        ORDER BY LOWER(nombre)
+        "#,
+        user_id
     )
     .fetch_all(pool)
     .await?;
@@ -120,6 +153,17 @@ pub async fn crear(
     }
 
     tx.commit().await?;
+
+    logro::verificar_recetas_creadas(pool, user_id).await?;
+    logro::verificar_gran_banquete(
+        pool,
+        user_id,
+        receta_id,
+        body.ingredientes.len(),
+        body.pasos.len(),
+        body.tiempo.as_deref(),
+    )
+    .await?;
 
     obtener_por_id(pool, receta_id)
         .await?
@@ -221,6 +265,136 @@ pub async fn obtener_detalle(
     })
 }
 
+pub async fn actualizar(
+    pool: &PgPool,
+    user_id: i32,
+    receta_id: i32,
+    body: &UpdateRecetaRequest,
+) -> Result<RecetaResponse, RecetaError> {
+    validar_solicitud_actualizacion(body)?;
+    verificar_propietario(pool, user_id, receta_id).await?;
+
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!(
+        r#"
+        UPDATE receta
+        SET
+            nombre = $1,
+            descripcion = $2,
+            raciones = $3,
+            tiempo = $4,
+            dificultad = $5,
+            imagen = $6
+        WHERE id = $7
+        "#,
+        body.nombre.trim(),
+        body.descripcion,
+        body.raciones,
+        body.tiempo,
+        body.dificultad,
+        body.imagen,
+        receta_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"DELETE FROM paso_receta WHERE id_receta = $1"#,
+        receta_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    for paso in &body.pasos {
+        sqlx::query!(
+            r#"
+            INSERT INTO paso_receta (id_receta, numero_paso, instruccion)
+            VALUES ($1, $2, $3)
+            "#,
+            receta_id,
+            paso.numero_paso,
+            paso.instruccion.trim()
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    sqlx::query!(
+        r#"DELETE FROM ingrediente_receta WHERE id_receta = $1"#,
+        receta_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    for ing in &body.ingredientes {
+        sqlx::query!(
+            r#"
+            INSERT INTO ingrediente_receta (id_receta, id_ingrediente, cantidad)
+            VALUES ($1, $2, $3)
+            "#,
+            receta_id,
+            ing.id_ingrediente,
+            ing.cantidad
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(|err| conflicto_referencia(err, "ingrediente"))?;
+    }
+
+    sqlx::query!(
+        r#"DELETE FROM utensilio_receta WHERE id_receta = $1"#,
+        receta_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    for ut in &body.utensilios {
+        sqlx::query!(
+            r#"
+            INSERT INTO utensilio_receta (id_receta, id_utensilio, cantidad)
+            VALUES ($1, $2, $3)
+            "#,
+            receta_id,
+            ut.id_utensilio,
+            ut.cantidad
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(|err| conflicto_referencia(err, "utensilio"))?;
+    }
+
+    tx.commit().await?;
+
+    logro::verificar_gran_banquete(
+        pool,
+        user_id,
+        receta_id,
+        body.ingredientes.len(),
+        body.pasos.len(),
+        body.tiempo.as_deref(),
+    )
+    .await?;
+
+    obtener_por_id(pool, receta_id)
+        .await?
+        .ok_or(RecetaError::NotFound)
+}
+
+pub async fn eliminar(pool: &PgPool, user_id: i32, receta_id: i32) -> Result<(), RecetaError> {
+    verificar_propietario(pool, user_id, receta_id).await?;
+
+    let result = sqlx::query!(r#"DELETE FROM receta WHERE id = $1"#, receta_id)
+        .execute(pool)
+        .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(RecetaError::NotFound);
+    }
+
+    Ok(())
+}
+
 async fn obtener_por_id(pool: &PgPool, id: i32) -> Result<Option<RecetaResponse>, RecetaError> {
     let receta = sqlx::query_as!(
         RecetaResponse,
@@ -278,6 +452,63 @@ fn validar_solicitud(body: &CreateRecetaRequest) -> Result<(), RecetaError> {
                 "las raciones deben ser mayores a cero".into(),
             ));
         }
+    }
+
+    Ok(())
+}
+
+fn validar_solicitud_actualizacion(body: &UpdateRecetaRequest) -> Result<(), RecetaError> {
+    if body.nombre.trim().is_empty() {
+        return Err(RecetaError::InvalidRequest(
+            "el nombre es obligatorio".into(),
+        ));
+    }
+
+    if body.pasos.is_empty() {
+        return Err(RecetaError::InvalidRequest(
+            "la receta debe tener al menos un paso".into(),
+        ));
+    }
+
+    for paso in &body.pasos {
+        if paso.numero_paso <= 0 {
+            return Err(RecetaError::InvalidRequest(
+                "cada paso debe tener un número mayor a cero".into(),
+            ));
+        }
+        if paso.instruccion.trim().is_empty() {
+            return Err(RecetaError::InvalidRequest(
+                "cada paso debe incluir una instrucción".into(),
+            ));
+        }
+    }
+
+    if let Some(raciones) = body.raciones {
+        if raciones <= 0 {
+            return Err(RecetaError::InvalidRequest(
+                "las raciones deben ser mayores a cero".into(),
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+async fn verificar_propietario(
+    pool: &PgPool,
+    user_id: i32,
+    receta_id: i32,
+) -> Result<(), RecetaError> {
+    let creador = sqlx::query_scalar!(
+        r#"SELECT id_usuario_creador FROM receta WHERE id = $1"#,
+        receta_id
+    )
+    .fetch_optional(pool)
+    .await?
+    .ok_or(RecetaError::NotFound)?;
+
+    if creador != user_id {
+        return Err(RecetaError::Forbidden);
     }
 
     Ok(())

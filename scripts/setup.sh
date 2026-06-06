@@ -45,6 +45,19 @@ else
   docker compose exec -T db psql -U nooks -d nooks_cookbook < db/seed_data.sql
 fi
 
+logros_seeded() {
+  docker compose exec -T db psql -U nooks -d nooks_cookbook -tAc \
+    "SELECT 1 FROM nooks_cookbook.logro LIMIT 1" \
+    | grep -q 1
+}
+
+if logros_seeded; then
+  echo "→ Logros ya están cargados."
+else
+  echo "→ Cargando logros iniciales (db/seed_logros.sql)..."
+  docker compose exec -T db psql -U nooks -d nooks_cookbook < db/seed_logros.sql
+fi
+
 echo ""
 echo "Listo. Puedes ejecutar: cargo run"
 echo "DATABASE_URL=${DATABASE_URL}"

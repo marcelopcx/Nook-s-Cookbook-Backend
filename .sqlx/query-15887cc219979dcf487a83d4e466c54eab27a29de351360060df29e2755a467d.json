@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE puntuacion_receta\n        SET\n            puntuacion = COALESCE($1, puntuacion),\n            comentario = COALESCE($2, comentario)\n        WHERE id_usuario = $3 AND id_receta = $4\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "15887cc219979dcf487a83d4e466c54eab27a29de351360060df29e2755a467d"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO usuario_logro (id_usuario, id_logro)\n        SELECT $1, l.id\n        FROM logro l\n        WHERE LOWER(l.nombre) = LOWER($2)\n          AND NOT EXISTS (\n              SELECT 1 FROM usuario_logro ul\n              WHERE ul.id_usuario = $1 AND ul.id_logro = l.id\n          )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "76d8e370576443346c56e8930188e4870aa54b95cd51e027164809dcd5767a5e"
+}

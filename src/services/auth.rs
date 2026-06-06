@@ -5,8 +5,10 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
 use crate::models::usuario::{
-    PerfilResponse, PerfilRow, RegisterRequest, UpdateMeRequest, Usuario, UsuarioPassword,
+    PerfilPublicoResponse, PerfilResponse, PerfilRow, RegisterRequest, UpdateMeRequest, Usuario,
+    UsuarioPassword,
 };
+use crate::services::logro;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AuthError {
@@ -21,6 +23,9 @@ pub enum AuthError {
 
     #[error("conflicto: usuario o correo ya registrado")]
     Conflict,
+
+    #[error("no autorizado")]
+    Forbidden,
 
     #[error("error de base de datos")]
     Database(#[from] sqlx::Error),
@@ -245,6 +250,54 @@ pub async fn update_profile(
     tx.commit().await?;
 
     get_profile(pool, user_id).await
+}
+
+pub async fn get_public_profile(
+    pool: &PgPool,
+    user_id: i32,
+) -> Result<PerfilPublicoResponse, AuthError> {
+    let row = sqlx::query!(
+        r#"
+        SELECT
+            u.id,
+            u.username,
+            u.public,
+            p.nombre,
+            p.apellido
+        FROM usuario u
+        INNER JOIN persona p ON p.id = u.id_persona
+        WHERE u.id = $1
+        "#,
+        user_id
+    )
+    .fetch_optional(pool)
+    .await?
+    .ok_or(AuthError::NotFound)?;
+
+    if !row.public {
+        return Err(AuthError::Forbidden);
+    }
+
+    Ok(PerfilPublicoResponse {
+        id: row.id,
+        username: row.username,
+        nombre: row.nombre,
+        apellido: row.apellido,
+    })
+}
+
+pub async fn delete_account(pool: &PgPool, user_id: i32) -> Result<(), AuthError> {
+    logro::verificar_eliminacion_cuenta(pool, user_id).await?;
+
+    let result = sqlx::query!(r#"DELETE FROM usuario WHERE id = $1"#, user_id)
+        .execute(pool)
+        .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(AuthError::NotFound);
+    }
+
+    Ok(())
 }
 
 fn create_jwt(user_id: i32, secret: &str, expiration_hours: i64) -> Result<String, jsonwebtoken::errors::Error> {

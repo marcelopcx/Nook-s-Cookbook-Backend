@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE grupo\n        SET\n            nombre = COALESCE($1, nombre),\n            descripcion = COALESCE($2, descripcion),\n            publico = COALESCE($3, publico)\n        WHERE id = $4\n        RETURNING id, nombre, descripcion, publico, fecha_creacion, id_usuario_creador\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "descripcion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "publico",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "fecha_creacion",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "id_usuario_creador",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "218910ca8417b777ac88cb10cff90bc340cef7d5aa8d9d99b9d1edd51ff246a3"
+}

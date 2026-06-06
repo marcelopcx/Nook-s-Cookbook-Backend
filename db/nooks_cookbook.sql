@@ -6,8 +6,8 @@
 --   • Recetas listadas en orden alfabético (índices sobre LOWER(nombre)).
 --   • Una receta puede pertenecer a varios grupos (Receta_Grupo N:M).
 --   • Quitar una receta de un grupo solo elimina la fila en Receta_Grupo.
---   • Al borrar un grupo se eliminan todas las recetas afiliadas a él (trigger),
---     aunque no sean del creador del grupo ni estén solo en ese grupo.
+--   • Al borrar un grupo se eliminan solo las recetas del dueño del grupo
+--     que estaban vinculadas a ese grupo (trigger).
 --   • Al borrar un usuario se eliminan sus recetas, grupos creados y su Persona.
 -- =============================================================================
 
@@ -146,6 +146,19 @@ CREATE TABLE Puntuacion_Receta (
     UNIQUE (id_usuario, id_receta)
 );
 
+CREATE TABLE Logro (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT
+);
+
+CREATE TABLE Usuario_Logro (
+    id_usuario INTEGER NOT NULL REFERENCES Usuario(id) ON DELETE CASCADE,
+    id_logro INTEGER NOT NULL REFERENCES Logro(id) ON DELETE CASCADE,
+    fecha_obtenido TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_usuario, id_logro)
+);
+
 -- -----------------------------------------------------------------------------
 -- 6. Índices (listados alfabéticos y búsquedas frecuentes)
 -- -----------------------------------------------------------------------------
@@ -159,13 +172,15 @@ CREATE INDEX idx_receta_grupo_grupo ON Receta_Grupo (id_grupo);
 CREATE INDEX idx_receta_grupo_receta ON Receta_Grupo (id_receta);
 CREATE INDEX idx_ingrediente_nombre_lower ON Ingrediente (LOWER(nombre));
 CREATE INDEX idx_utensilio_nombre_lower ON Utensilio (LOWER(nombre));
+CREATE INDEX idx_logro_nombre_lower ON Logro (LOWER(nombre));
+CREATE INDEX idx_usuario_logro_usuario ON Usuario_Logro (id_usuario);
+CREATE INDEX idx_usuario_logro_logro ON Usuario_Logro (id_logro);
 
 -- -----------------------------------------------------------------------------
 -- 7. Funciones y triggers
 -- -----------------------------------------------------------------------------
 
--- Al borrar un grupo: eliminar todas las recetas vinculadas en Receta_Grupo
--- (requisito del profesor — incluye recetas ajenas al creador del grupo).
+-- Al borrar un grupo: eliminar solo las recetas del dueño del grupo vinculadas en Receta_Grupo.
 CREATE OR REPLACE FUNCTION fn_borrar_recetas_al_eliminar_grupo()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -173,9 +188,11 @@ AS $$
 BEGIN
     DELETE FROM Receta
     WHERE id IN (
-        SELECT id_receta
-        FROM Receta_Grupo
-        WHERE id_grupo = OLD.id
+        SELECT rg.id_receta
+        FROM Receta_Grupo rg
+        INNER JOIN Receta r ON r.id = rg.id_receta
+        WHERE rg.id_grupo = OLD.id
+          AND r.id_usuario_creador = OLD.id_usuario_creador
     );
     RETURN OLD;
 END;

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            p.id,\n            p.puntuacion,\n            p.comentario,\n            p.id_usuario,\n            u.username,\n            p.id_receta\n        FROM puntuacion_receta p\n        INNER JOIN usuario u ON u.id = p.id_usuario\n        WHERE p.id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "puntuacion",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "comentario",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "id_usuario",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "id_receta",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fe6809db3f4a434be3999309edbb90afc878e28764d488e88cfba863ebf084d3"
+}

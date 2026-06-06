@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM seguidor_grupo\n        WHERE id_usuario = $1 AND id_grupo = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "99aac80d18b1d2c81839a9b2c3c3e14ef02285289b71e4b017fbad89d28f15a3"
+}
