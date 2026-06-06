@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize)]
 pub struct LogroResponse {
@@ -14,4 +14,9 @@ pub struct UsuarioLogroResponse {
     pub nombre: String,
     pub descripcion: Option<String>,
     pub fecha_obtenido: NaiveDateTime,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ReclamarLogroRequest {
+    pub nombre: String,
 }

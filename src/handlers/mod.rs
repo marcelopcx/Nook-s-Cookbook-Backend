@@ -24,4 +24,4 @@ pub use grupo::{
 };
 pub use health::health_check;
 pub use imagen::subir_imagen_receta;
-pub use logro::{listar_logros, listar_mis_logros};
+pub use logro::{listar_logros, listar_mis_logros, reclamar_logro};

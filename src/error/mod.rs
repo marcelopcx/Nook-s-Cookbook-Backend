@@ -130,6 +130,8 @@ impl From<GrupoError> for ApiError {
 impl From<LogroError> for ApiError {
     fn from(err: LogroError) -> Self {
         match err {
+            LogroError::NotFound => ApiError::NoEncontrado,
+            LogroError::NotAllowed => ApiError::Prohibido,
             LogroError::Database(e) => ApiError::ErrorDelServidor(e.to_string()),
         }
     }

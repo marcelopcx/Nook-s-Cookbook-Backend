@@ -4,9 +4,18 @@ use crate::models::logro::{LogroResponse, UsuarioLogroResponse};
 
 #[derive(Debug, thiserror::Error)]
 pub enum LogroError {
+    #[error("recurso no encontrado")]
+    NotFound,
+
+    #[error("este logro no puede reclamarse desde la aplicación")]
+    NotAllowed,
+
     #[error("error de base de datos")]
     Database(#[from] sqlx::Error),
 }
+
+/// Logros que solo la app puede disparar (p. ej. ajustes locales sin dato en el servidor).
+const LOGROS_RECLAMABLES_CLIENTE: &[&str] = &["¿La niña esta triste 🏳️‍🌈?"];
 
 pub async fn listar(pool: &PgPool) -> Result<Vec<LogroResponse>, LogroError> {
     let logros = sqlx::query_as!(
@@ -46,6 +55,51 @@ pub async fn listar_por_usuario(
     .await?;
 
     Ok(logros)
+}
+
+pub async fn reclamar_desde_cliente(
+    pool: &PgPool,
+    user_id: i32,
+    nombre: &str,
+) -> Result<UsuarioLogroResponse, LogroError> {
+    let nombre = nombre.trim();
+
+    if !LOGROS_RECLAMABLES_CLIENTE
+        .iter()
+        .any(|permitido| permitido.eq_ignore_ascii_case(nombre))
+    {
+        return Err(LogroError::NotAllowed);
+    }
+
+    let logro_id = sqlx::query_scalar!(
+        r#"SELECT id FROM logro WHERE LOWER(nombre) = LOWER($1)"#,
+        nombre
+    )
+    .fetch_optional(pool)
+    .await?
+    .ok_or(LogroError::NotFound)?;
+
+    otorgar_por_nombre(pool, user_id, nombre).await?;
+
+    let logro = sqlx::query_as!(
+        UsuarioLogroResponse,
+        r#"
+        SELECT
+            ul.id_logro,
+            l.nombre,
+            l.descripcion,
+            ul.fecha_obtenido
+        FROM usuario_logro ul
+        INNER JOIN logro l ON l.id = ul.id_logro
+        WHERE ul.id_usuario = $1 AND ul.id_logro = $2
+        "#,
+        user_id,
+        logro_id
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(logro)
 }
 
 pub async fn otorgar_por_nombre(

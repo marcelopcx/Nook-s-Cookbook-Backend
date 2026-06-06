@@ -40,5 +40,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         .service(handlers::dejar_seguir_grupo)
         .service(handlers::listar_seguidores_grupo)
         .service(handlers::listar_logros)
-        .service(handlers::listar_mis_logros);
+        .service(handlers::listar_mis_logros)
+        .service(handlers::reclamar_logro);
 }
